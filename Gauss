@@ -1,0 +1,350 @@
+import java.util.*;
+
+public class Laba1{
+
+    private double initialMatrith[][];
+
+    public Laba1(){
+        
+        initialMatrith = new double[][] {
+            { 8.30, 4.82, 4.10, 1.90, 12.85 },
+            { 3.92, 8.45, 5.58, 2.45, 12.21 },
+            { 3.77, 9.41, 8.04, 2.28, 13.25  },
+            { 2.21, 0.65 , 1.69, 6.91, -8.35 }
+        }; 
+
+    }
+    // возвращает квадратную матрицу (без столбца неоднородности)
+    public double[][] sqrInitalMatrith(){
+
+        double matrith [][] = new double[initialMatrith.length][];
+
+        int s = 0;
+
+        for(double item[] : initialMatrith){
+
+            matrith[s] = new double[item.length - 1];
+            
+            for(int j = 0; j < item.length - 1; j++ ){
+
+                matrith[s][j] = initialMatrith[s][j];
+            
+            }
+
+            s++;
+
+        }
+
+        return matrith;
+        
+    }
+    // вывод матрицы на экран
+    public static void matrithOutput(double matrith[][]){
+
+        for(double item[] : matrith){
+
+            for(double i : item){
+
+                System.out.print(i + " ");
+
+            }
+            System.out.println();
+
+        }
+        System.out.println();
+        
+    }
+    // возвращает копию матрицы переданной параметром
+    public static double[][] matrithCopy(double matrith[][]){
+
+        double matrithCopy [][] = new double [matrith.length][];
+        int s = 0;
+
+        for(double item[] : matrith){
+
+            matrithCopy[s] = new double[item.length];
+            int j = 0;
+
+            for(double i : item){
+
+                matrithCopy[s][j] = i;
+                j++;
+
+            }
+            s++;
+
+        }
+        return matrithCopy;
+        
+    }
+    // возвращает строку в которой находится максимальный элемент ряда
+    public int gettingMaxColumnItem(double matrith[][],int column){ // бросает исключение если количество строк не равно количеству колонок
+
+        int rowOfmax = column;
+        double max = matrith[column][column];
+
+        for(int i = column; i < matrith.length;i++){
+
+            if(max < matrith[i][column]) rowOfmax = i ;
+
+        }
+
+        return rowOfmax;
+
+    } 
+    // меняет строку column  местами  со строкой row
+    public void permutationOfLines(double matrith[][],int column,int row){
+
+        double temp[];
+        temp = matrith[column] ;
+        matrith[column] = matrith[row];
+        matrith[row] = temp;
+
+    }
+    // делит все элементы строк на коэфициент при элементе column
+    public static void makingFirstCof_1(double matrith[], int column){
+        
+        double firstCof = matrith[column];
+        for(int i = 0; i < matrith.length; i++){
+            matrith[i] = matrith[i] / firstCof ;
+        }
+
+    }
+    //зануляет колонку
+    public void columnZeroning(double matrith[][], int column){
+
+        for(int i = column + 1; i < matrith.length;i++){
+
+            int j = 0;
+            double z = matrith[column][column] * matrith[i][column];
+
+            while( j < matrith[i].length ){
+
+             matrith[i][j] =  matrith[i][j] -  matrith[column][j] * z;
+                j++;
+
+            }
+
+        }
+
+    }
+    //умножает строку row[] на коффициент cof
+    public double[] rowMultiplication(double row[], double cof ){
+
+        double helpingRow[] = new double[row.length];
+        for(int i = 0; i < row.length; i++){
+
+            helpingRow[i] = row[i] *cof;
+            
+        }
+        
+        return helpingRow;
+    }
+    // отнимает в матрице matrith[][] от строки с номером numberOfRow строку otniat[]
+    public void rowDifference(double matrith[][],double otniat[], int numberOfRow){
+
+        for(int i = 0; i < otniat.length; i++){
+            matrith[numberOfRow][i] = matrith[numberOfRow][i] - otniat[i];
+        }
+
+    }
+    // функция считающая определитель исходной матрицы без столбца неоднородности
+    public double determinant(){
+        double workingMatrith [][]= matrithCopy(initialMatrith); 
+        double determinant = 1;
+        for(int column = 0; column < workingMatrith.length; column++){
+           
+             if(workingMatrith[column][column] == 0)
+             {
+                int row = gettingMaxColumnItem(workingMatrith,column);
+                permutationOfLines(workingMatrith, column, row);
+                determinant = determinant * (-1);
+             }
+             determinant = determinant * workingMatrith[column][column];
+             makingFirstCof_1(workingMatrith[column], column);
+             columnZeroning(workingMatrith, column);
+    
+        }
+
+        return determinant;
+
+    }
+    // прямой ход метода гаусса.возвращает преобразованную матрицу
+    public double[][]  methodGaussStraightRunning(double matrith[][]){
+
+        double workingMatrith [][] = matrithCopy(matrith); 
+
+        for(int column = 0; column < workingMatrith.length; column++){
+           
+        int row = gettingMaxColumnItem(workingMatrith,column);
+        permutationOfLines(workingMatrith, column, row);
+        makingFirstCof_1(workingMatrith[column], column);
+        columnZeroning(workingMatrith, column);
+
+        }
+       
+        return workingMatrith;
+        
+    }
+    // обратный ход метода гаусса.возвращает преобразованную матрицу
+    public double[][]  methodGaussInverseRunning(double matrith[][]){
+
+        for(int i = matrith.length - 1; i >=0; i--){
+            
+            for(int j = i - 1; j >= 0; j --){
+                double help[] = rowMultiplication(matrith[i], matrith[j][i ]);
+                rowDifference(matrith, help,j );
+
+            }
+           
+        }
+        
+        return matrith;
+
+    }
+    // метод гаусса целиком, возвращает столбец неизвестных
+    public double[] commonGauss(){
+
+        double helpMatrith[][] =  methodGaussStraightRunning(initialMatrith);
+        System.out.println("прямой ход метода Гаусса");
+        matrithOutput(helpMatrith);
+        methodGaussInverseRunning(helpMatrith);
+        System.out.println("обратный ход метода Гаусса");
+        matrithOutput(helpMatrith);
+
+        double rowX[] = new double[helpMatrith.length];
+        System.out.println("столбец решений");
+
+        for(int i = 0; i< helpMatrith.length;i++){
+
+            rowX[i] = helpMatrith[i][helpMatrith[i].length - 1];
+            System.out.printf("x%s = %s ",i, rowX[i]);
+            System.out.println();
+
+        }
+
+        return rowX;
+    }
+    // возвращает матрицу состоящую из матрицы СЛАУ без столбца неоднородности и единичной матрицы
+    public double[][] readyToMakeInverse(){
+
+        double bigMatrix[][] = new double[ initialMatrith.length][];
+
+        int s = 0;
+        for(double item[] : initialMatrith){
+            bigMatrix[s] = new double[item.length *  2 - 2];
+            
+            for(int i = 0; i < item.length -1; i++){
+                bigMatrix[s][i] = item[i];
+                
+            }
+            s++;
+        }
+
+        for(int i = 0;i < bigMatrix.length;i++){
+
+            bigMatrix[i][initialMatrith[i].length - 1 + i] = 1;
+
+        }
+        return bigMatrix;
+
+    }
+    // возвращает обратную матрицу к исходной матрице СЛАУ без столбца неоднородности
+    public double[][] inversMatrix(){
+    
+        double workingMatrith[][] = readyToMakeInverse();
+
+        //System.out.println("Поиск обратной матрицы с помощью метода Гаусса");
+        //matrithOutput(workingMatrith);
+        workingMatrith = methodGaussInverseRunning(methodGaussStraightRunning(workingMatrith));
+       // System.out.println("Привели левую матрицу к единичной,а справа получили обратную");
+       // matrithOutput(workingMatrith);
+
+        double inversMatrix[][] = new double[workingMatrith.length][];
+       
+        for(int i = 0; i < workingMatrith.length;i++){
+
+            inversMatrix[i] = new double[workingMatrith[i].length / 2];
+            for(int j = 0; j < workingMatrith[i].length / 2;j++ ){
+
+                inversMatrix[i][j] = workingMatrith[i][workingMatrith[i].length / 2  + j];
+
+            }
+
+        }
+
+        return inversMatrix;
+
+    }
+    // функция перемножающая две патрицы и возвращающая результат
+    public double[][] matrithMultiplication(double Maze[][], double Maze1[][]){
+        int n = Maze.length;
+        int m = Maze1.length;
+        int k = Maze1[0].length;
+        double Maze2[][]=new double[n][k];
+        for(int i=0;i<n;i++)
+		{
+			for(int u=0;u<k;u++)
+			{
+				for(int j=0;j<m;j++)
+				{
+
+                    Maze2[i][u]+=Maze[i][j]*Maze1[j][u];
+            
+				}
+			}
+		}
+        return Maze2;
+       
+    }
+    // функция возвращающая матрицу которая получается в результате перемножения обратной и исходной матрицы
+    public double[][] inverseMatrixCheck(double [][] inversMatrix){
+
+        //matrithOutput(sqrInitalMatrith());
+        //matrithOutput(inversMatrix);
+        return matrithMultiplication( inversMatrix,sqrInitalMatrith());
+
+    }
+    // функция считающая и возвращающая столбец невязку,принимает столбец неизвестных
+    public double[] discrepancy(double rowX[]){
+
+        double rowXX [][] = new double[rowX.length][1];
+
+        for(int i = 0; i < rowX.length; i++){
+            rowXX[i][0] = rowX[i];
+        }
+
+        double neviazka[] = new double[rowX.length];
+        double s[][] =sqrInitalMatrith();
+        double mult[][] = matrithMultiplication(s,rowXX );
+
+        for(int i = 0; i < rowX.length; i++){
+
+        neviazka[i] = initialMatrith[i][initialMatrith[i].length - 1] - mult[i][0] ;
+        System.out.println(neviazka[i]);
+
+        }
+        return neviazka;
+
+    }
+
+    public static void main(String[] args){
+        
+
+        Laba1 a = new Laba1();
+        
+        System.out.println("Исходная матрица");
+        matrithOutput(a.initialMatrith);
+        double x[] = a.commonGauss();
+        System.out.println("\nОпределитель матрицы СЛАУ без столбца неоднородности " + a.determinant());
+        System.out.println("\nОбратная матрица к исходной матрице СЛАУ без столбца неоднородности");
+        matrithOutput(a.inversMatrix());
+        System.out.println("Проверка на правильность обратной матрицы(в разультате умножения исходной матрицы на обратную ей должна получится единичная)");
+        matrithOutput(a.inverseMatrixCheck(a.inversMatrix()));
+        System.out.println("вектор невязки");
+        a.discrepancy(x);
+        
+        
+    }
+
+}
